@@ -5,21 +5,15 @@ const SAVE_EVENT = 'save_event' //tracking debugging
 const storageKey = 'TO_DO_APPS_WEB' //KEY STORAGE WEB 
 
 
-// mendeteksi browser support dengan local storage atau tidak 
-function islocalstorage(){
-  if (typeof Storage === 'undefined'){
-    alert('Browser yang anda gunakan tidak support local storage')
-    return false; //jika iya kembalikan false 
+// MENDETEKSI BROSER SUPPORT STORAGE LOCAL ATAU TIDAK 
+function storageBrowserSupport(){
+  if (typeof (Storage) === undefined){
+    console.log('Browser Tidak Support!!')
+    return false;
   }
-
-  // lalu ketika dipanggil akan melempar true 
-  return true; 
+  console.log('Support Sedang Dikerjakan')
+  return true;
 }
-
-
-
-
-
 
 // MEMBUAT ID RANDOM 
 function generateid(){
@@ -46,7 +40,7 @@ function addTodo(){
   TodoData.push(OutputDataObjek)
 
   document.dispatchEvent(new Event(EVENT_CUSTOM))
-
+  saveData();
 }
 
 
@@ -153,6 +147,7 @@ function createElementTodo(objek){
 
 
 document.addEventListener(EVENT_CUSTOM, function() {
+
   const nocompleteTodo = document.getElementById('todos');
   nocompleteTodo.innerHTML = '';
 
@@ -174,32 +169,48 @@ document.addEventListener(EVENT_CUSTOM, function() {
 
 
 document.addEventListener('DOMContentLoaded', function (){
-  
   const selectForm = document.getElementById('form');
-    
+
+  if (storageBrowserSupport()) {
+    loadDataFromStorage();
+  }
+
   selectForm.addEventListener('submit', function(event){
     event.preventDefault(); 
     addTodo() 
-
-    
+    // saveData();
   })
-  
 })
 
-// menjalankan EVENT CUSTOM YANG DIBUAT 
-document.addEventListener(SAVE_EVENT, function(){
-  console.log(menjalankan)
-})
 
-// FUNGSI LOCAL STORAGE 
-function saveData(){
-  if (islocalstorage){
-    const uptoJson = JSON.stringify(TodoData)
 
-    localStorage.setItem(storageKey, uptoJson)
+function saveData() {
+  if (storageBrowserSupport()) {
+    const data = JSON.stringify(TodoData);
 
-    document.dispatchEvent(new Event(SAVE_EVENT))
-  }  
+    localStorage.setItem(storageKey, data);
+
+    document.dispatchEvent(new Event(SAVE_EVENT));
+  }
 }
 
+document.addEventListener(SAVE_EVENT, function (ev) {
+  console.log(localStorage.getItem(storageKey));
+  console.log(ev.type)
+});
 
+function loadDataFromStorage() {
+  const serializedData = localStorage.getItem(storageKey);
+  let data = JSON.parse(serializedData);
+  console.log(data)
+
+  if (data !== null) {
+    for (const todo of data) {
+      TodoData.push(todo);
+
+      console.log(todo)
+    }
+  }
+
+  document.dispatchEvent(new Event(EVENT_CUSTOM));
+}
