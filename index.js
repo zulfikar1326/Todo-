@@ -1,10 +1,32 @@
-const TodoData = []
-const EVENT_CUSTOM = 'CUSTOMEVENT' 
+const TodoData = [] // var kosong 
+const EVENT_CUSTOM = 'CUSTOMEVENT'  //STRING CUSTOM EVENT  
 
+const SAVE_EVENT = 'save_event' //tracking debugging
+const storageKey = 'TO_DO_APPS_WEB' //KEY STORAGE WEB 
+
+
+// mendeteksi browser support dengan local storage atau tidak 
+function islocalstorage(){
+  if (typeof Storage === 'undefined'){
+    alert('Browser yang anda gunakan tidak support local storage')
+    return false; //jika iya kembalikan false 
+  }
+
+  // lalu ketika dipanggil akan melempar true 
+  return true; 
+}
+
+
+
+
+
+
+// MEMBUAT ID RANDOM 
 function generateid(){
   return +new Date()
 }
 
+// MENGEMBALIKAN INPUT DATA MENJADI OBJEK 
 function toObjek(id,title,time,progres){
   return  {
     id,
@@ -14,13 +36,7 @@ function toObjek(id,title,time,progres){
   }
 }
 
-// cari untuk sortir 
-
-
-
-
-
-
+// PENGAMBILAN VALUE SETELAH INPUT 
 function addTodo(){
   const title = document.getElementById('title').value;
   const time = document.getElementById('date').value;
@@ -53,6 +69,7 @@ function findTodoIndex(objek){
 }
 
 
+// FUNGSI HAPUS TUGAS 
 function removetaskfromcomplete(objek){
   const todoTarget = findTodoIndex(objek)
 
@@ -60,9 +77,10 @@ function removetaskfromcomplete(objek){
   
   TodoData.splice(todoTarget,1)
   document.dispatchEvent(new Event(EVENT_CUSTOM))
+  saveData();
 }
 
-
+// FUNGSI TAMBAH TUGAS 
 function addtasktocomplete(objek){
   const todoTarget = findTodo(objek)
 
@@ -70,16 +88,20 @@ function addtasktocomplete(objek){
 
   todoTarget.progres = true;
   document.dispatchEvent(new Event(EVENT_CUSTOM))
+  saveData();
 }
 
+// FUNGSI UNDO TUGAS 
 function undotaskfromcomplete(objek){
   const todotarget = findTodo(objek);
 
   if (todotarget == null)return;
   todotarget.progres = false;
   document.dispatchEvent(new Event(EVENT_CUSTOM))
+  saveData();
 }
 
+// FUNGSI MEMBUAT ELEMENT KETIKA MENAMBAH TUGAS 
 function createElementTodo(objek){
   const textTitle = document.createElement('h2')
   textTitle.innerText = objek.title;
@@ -97,6 +119,7 @@ function createElementTodo(objek){
   container.setAttribute('id', `todo-${objek.id}`);
 
 
+  // MANIPULASI BUTTON SELESAI HAPUS DAN UNDO KETIKA DI CLICK 
   if (objek.progres){
     const UndoButton = document.createElement('button');
     UndoButton.classList.add('undo-button')
@@ -150,12 +173,6 @@ document.addEventListener(EVENT_CUSTOM, function() {
 })
 
 
-
-
-
-
-
-
 document.addEventListener('DOMContentLoaded', function (){
   
   const selectForm = document.getElementById('form');
@@ -168,5 +185,21 @@ document.addEventListener('DOMContentLoaded', function (){
   })
   
 })
+
+// menjalankan EVENT CUSTOM YANG DIBUAT 
+document.addEventListener(SAVE_EVENT, function(){
+  console.log(menjalankan)
+})
+
+// FUNGSI LOCAL STORAGE 
+function saveData(){
+  if (islocalstorage){
+    const uptoJson = JSON.stringify(TodoData)
+
+    localStorage.setItem(storageKey, uptoJson)
+
+    document.dispatchEvent(new Event(SAVE_EVENT))
+  }  
+}
 
 
